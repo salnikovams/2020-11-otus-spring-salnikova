@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="interviewer" class="ru.otus.spring.controller.InterviewerImpl">
+    </bean>
+
+    <bean id="csvParser" class="ru.otus.spring.service.CsvParserImpl">
+        <property name="fileName" value="testQuestions.csv" />
+    </bean>
+
+    <bean id="testService" class="ru.otus.spring.service.TestServiceImpl">
+        <constructor-arg name="parser" ref="csvParser"/>
+        <constructor-arg name="interviewer" ref="interviewer"/>
+        <constructor-arg name="studentAnswerDao" ref="studentAnswerDao"/>
+    </bean>
+
+    <bean id="studentAnswerDao" class="ru.otus.spring.dao.StudentAnswerDaoImpl"/>
+
+
+</beans>

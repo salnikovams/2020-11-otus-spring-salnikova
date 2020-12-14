@@ -1,0 +1,10 @@
+file:
+  name:
+    en: questions-en.csv
+    ru: testQuestions.csv
+
+language: en
+
+logging:
+  level:
+    root: error
