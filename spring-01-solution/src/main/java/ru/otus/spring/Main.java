@@ -11,9 +11,6 @@ public class Main {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("/spring-context.xml");
         TestService service = context.getBean(TestService.class);
 
-        CsvParser parcer = context.getBean(CsvParser.class);
-
-        parcer.parseFile();
         service.testStudents();
 
         context.close();
