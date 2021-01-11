@@ -1,0 +1,9 @@
+csvfile:
+  name: testQuestions_ru.csv
+
+completed:
+  test:
+    answer:
+      quantity: 3
+application:
+  locale: en
