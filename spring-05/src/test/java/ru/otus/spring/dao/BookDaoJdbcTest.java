@@ -1,7 +1,6 @@
 package ru.otus.spring.dao;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.shell.jline.InteractiveShellApplicationRunner;
@@ -29,7 +28,12 @@ class BookDaoJdbcTest {
 
     @org.junit.jupiter.api.Test
     void countTest() {
-        Book book = new Book("bookName", new Author("authorName"), new Genre("genre"));
+
+        Author author= authorDaoJdbc.insert(new Author("authorName"));
+        Genre genre = genreDaoJdbc.insert(new Genre("genre"));
+
+
+        Book book = new Book("bookName", author, genre);
         bookDaoJdbc.insert(book);
         int count = bookDaoJdbc.count();
         Assertions.assertEquals(count, 2);
@@ -38,7 +42,11 @@ class BookDaoJdbcTest {
     @org.junit.jupiter.api.Test
     void insert() {
         String bookName = "bookName";
-        Long bookID = bookDaoJdbc.insert(new Book(bookName, new Author("authorName"), new Genre("genre")));
+        Author author= authorDaoJdbc.insert(new Author("authorName"));
+        Genre genre = genreDaoJdbc.insert(new Genre("genre"));
+
+
+        Long bookID = bookDaoJdbc.insert(new Book(bookName, author, genre));
         Book getBook = bookDaoJdbc.getById(bookID);
         Assertions.assertNotNull(getBook);
         Assertions.assertEquals(getBook.getName(), bookName);
@@ -48,8 +56,11 @@ class BookDaoJdbcTest {
     void update() {
         String bookName = "bookName";
         String newName = "newName";
-        Long bookId = bookDaoJdbc.insert(new Book(bookName, new Author("authorName"), new Genre("genre")));
-         bookDaoJdbc.update(new Book(bookId, newName, new Author("authorName"), new Genre("genre")));
+        Author author= authorDaoJdbc.insert(new Author("authorName"));
+        Genre genre = genreDaoJdbc.insert(new Genre("genre"));
+
+        Long bookId = bookDaoJdbc.insert(new Book(bookName, author, genre));
+         bookDaoJdbc.update(new Book(bookId, newName, author, genre));
         Book getBook = bookDaoJdbc.getById(bookId);
         Assertions.assertNotNull(getBook);
         Assertions.assertEquals(getBook.getName(), newName);
@@ -65,8 +76,14 @@ class BookDaoJdbcTest {
 
     @org.junit.jupiter.api.Test
     void getAll() {
-        Long book1Id = bookDaoJdbc.insert(new Book("bookName",  new Author("authorName"), new Genre("genre")));
-        Long book2Id = bookDaoJdbc.insert(new Book("bookName2", new Author("authorName"), new Genre("genre")));
+        Author author1= authorDaoJdbc.insert(new Author("authorName"));
+        Author author2= authorDaoJdbc.insert(new Author("authorName2"));
+
+        Genre genre1 = genreDaoJdbc.insert(new Genre("genre"));
+        Genre genre2 = genreDaoJdbc.insert(new Genre("genre2"));
+
+        Long book1Id = bookDaoJdbc.insert(new Book("bookName",  author1, genre1));
+        Long book2Id = bookDaoJdbc.insert(new Book("bookName2", author2, genre2));
         List<Book> books = bookDaoJdbc.getAll();
         Assertions.assertNotNull(books);
         Assertions.assertEquals(books.size(), 3);
@@ -75,8 +92,11 @@ class BookDaoJdbcTest {
     @org.junit.jupiter.api.Test
     void getByName() {
         String bookName = "bookName";
-        bookDaoJdbc.insert(new Book(bookName, new Author("authorName"), new Genre("genre")));
-        bookDaoJdbc.insert(new Book("bookName2", new Author("authorName"), new Genre("genre")));
+        Author author= authorDaoJdbc.insert(new Author("authorName"));
+        Genre genre = genreDaoJdbc.insert(new Genre("genre"));
+
+        bookDaoJdbc.insert(new Book(bookName, author, genre));
+        bookDaoJdbc.insert(new Book("bookName2", author, genre));
         Book book = bookDaoJdbc.getByName(bookName);
         Assertions.assertNotNull(book);
         Assertions.assertEquals(book.getName(), bookName);
@@ -85,7 +105,10 @@ class BookDaoJdbcTest {
     @org.junit.jupiter.api.Test
     void deleteById() {
         String bookName = "bookName";
-        Long bookId = bookDaoJdbc.insert(new Book(bookName,  new Author("authorName"), new Genre("genre")));
+        Author author= authorDaoJdbc.insert(new Author("authorName"));
+        Genre genre = genreDaoJdbc.insert(new Genre("genre"));
+
+        Long bookId = bookDaoJdbc.insert(new Book(bookName, author, genre));
         bookDaoJdbc.deleteById(bookId);
         Book bookDeleted = bookDaoJdbc.getById(bookId);
         Assertions.assertNull(bookDeleted);

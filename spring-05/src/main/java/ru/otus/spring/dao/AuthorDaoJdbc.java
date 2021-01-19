@@ -52,7 +52,7 @@ public class AuthorDaoJdbc implements AuthorDao {
         Map<String, Object> params = Collections.singletonMap("id", id);
         try {
             return namedParameterJdbcOperations.queryForObject(
-                    "select * from Author where id = :id", params, new AuthorMapper()
+                    "select ID, NAME from Author where id = :id", params, new AuthorMapper()
             );
         } catch (DataAccessException e) {
             return null;
@@ -62,7 +62,7 @@ public class AuthorDaoJdbc implements AuthorDao {
 
     @Override
     public List<Author> getAll() {
-        return namedParameterJdbcOperations.query("select * from Author", new AuthorMapper());
+        return namedParameterJdbcOperations.query("select ID, NAME from Author", new AuthorMapper());
 
     }
 
@@ -70,7 +70,7 @@ public class AuthorDaoJdbc implements AuthorDao {
     public Author getByName(String name) {
         Map<String, Object> params = Collections.singletonMap("name", name);
         try {
-            return namedParameterJdbcOperations.queryForObject("select * from Author a where a.name = :name", params, new AuthorMapper());
+            return namedParameterJdbcOperations.queryForObject("select ID, NAME from Author a where a.name = :name", params, new AuthorMapper());
         } catch (DataAccessException e) {
             return null;
         }

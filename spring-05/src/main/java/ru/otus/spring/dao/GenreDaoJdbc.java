@@ -55,7 +55,7 @@ public class GenreDaoJdbc implements GenreDao {
         Map<String, Object> params = Collections.singletonMap("id", id);
         try {
              return namedParameterJdbcOperations.queryForObject(
-                    "select * from Genre where id = :id", params, new GenreMapper()
+                    "select ID, NAME from Genre where id = :id", params, new GenreMapper()
             );
         } catch (DataAccessException e) {
             return null;
@@ -65,7 +65,7 @@ public class GenreDaoJdbc implements GenreDao {
     @Override
     public List<Genre> getAll() {
 
-        return namedParameterJdbcOperations.query("select * from Genre", new GenreMapper());
+        return namedParameterJdbcOperations.query("select ID, NAME from Genre", new GenreMapper());
     }
 
     @Override
@@ -80,7 +80,7 @@ public class GenreDaoJdbc implements GenreDao {
     public Genre getByName(String name) {
         Map<String, Object> params = Collections.singletonMap("name", name);
         try {
-            return namedParameterJdbcOperations.queryForObject("select distinct * from Genre a where a.name = :name", params, new GenreDaoJdbc.GenreMapper());
+            return namedParameterJdbcOperations.queryForObject("select distinct ID, NAME from Genre a where a.name = :name", params, new GenreDaoJdbc.GenreMapper());
         } catch (DataAccessException e) {
             return null;
         }

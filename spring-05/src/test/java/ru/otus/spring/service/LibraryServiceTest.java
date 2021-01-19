@@ -55,8 +55,9 @@ class LibraryServiceTest {
 
         libraryService.addBook("bookName", "authorName", "genreName");
         Book book = bookDaoJdbc.getByName("bookName");
-        libraryService.updateBookInfo(book.getId(), bookName2, authorName, genreName);
-        book = bookDaoJdbc.getById(book.getId());
+        Long bookID = book.getId();
+        libraryService.updateBookInfo(bookID, bookName2, authorName, genreName);
+        book = bookDaoJdbc.getById(bookID);
         Assertions.assertNotNull(book);
         Assertions.assertEquals(book.getName(), bookName2);
         Assertions.assertEquals(book.getAuthor().getName(), authorName);

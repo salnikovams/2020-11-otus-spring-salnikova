@@ -65,7 +65,11 @@ public class BookDaoJdbc implements BookDao {
         Map<String, Object> params = Collections.singletonMap("id", id);
         try {
              return namedParameterJdbcOperations.queryForObject(
-                     "select * from Book where id = :id", params, new BookMapper()
+                     "select b.ID as ID, b.NAME as NAME, b.AUTHORID as AUTHORID, a.NAME as AUTHORNAME," +
+                             " b.GENREID as GENREID, g.NAME as GENRENAME from Book as b" +
+                             " JOIN AUTHOR as a ON a.ID = b.AUTHORID" +
+                             " JOIN GENRE as g ON g.ID = b.GENREID"+
+                             " where b.ID = :id", params, new BookMapper()
                 );
         } catch (DataAccessException e) {
             return null;
@@ -77,7 +81,12 @@ public class BookDaoJdbc implements BookDao {
         Map<String, Object> params = Collections.singletonMap("name", name);
         try {
             return namedParameterJdbcOperations.queryForObject(
-                    "select * from Book b where b.name = :name", params, new BookMapper()
+                    "select b.ID as ID, b.NAME as NAME, b.AUTHORID as AUTHORID, a.NAME as AUTHORNAME,"+
+                            " b.GENREID as GENREID, g.NAME as GENRENAME from Book as b "+
+                            " JOIN AUTHOR as a ON a.ID = b.AUTHORID" +
+                            " JOIN GENRE as g ON g.ID = b.GENREID" +
+                            " where b.name = :name",
+                    params, new BookMapper()
             );
         }
         catch (DataAccessException e) {
@@ -87,7 +96,11 @@ public class BookDaoJdbc implements BookDao {
 
     @Override
     public List<Book> getAll() {
-        return namedParameterJdbcOperations.query("select * from Book", new BookMapper());
+        return namedParameterJdbcOperations.query("select b.ID as ID, b.NAME as NAME, b.AUTHORID as AUTHORID, a.NAME as AUTHORNAME," +
+                " b.GENREID as GENREID, g.NAME as GENRENAME from Book as b" +
+                " JOIN AUTHOR as a ON a.ID = b.AUTHORID" +
+                " JOIN GENRE as g ON g.ID = b.GENREID",
+                new BookMapper());
     }
 
     @Override
@@ -101,10 +114,11 @@ public class BookDaoJdbc implements BookDao {
     private  class BookMapper implements RowMapper<Book> {
         @Override
         public Book mapRow(ResultSet resultSet, int i) throws SQLException {
-            long id = resultSet.getLong("id");
-            String name = resultSet.getString("name");
-            Author author  = authorDao.getById(resultSet.getLong("authorId"));
-            Genre genre  = genreDao.getById(resultSet.getLong("genreId"));
+            long id = resultSet.getLong("ID");
+            String name = resultSet.getString("NAME");
+
+            Author author = new Author(resultSet.getLong("AUTHORID"), resultSet.getString("AUTHORNAME"));
+            Genre genre = new Genre(resultSet.getLong("GENREID"), resultSet.getString("GENRENAME"));
             return new Book(id, name, author, genre);
         }
     }
