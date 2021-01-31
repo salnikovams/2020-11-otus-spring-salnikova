@@ -40,15 +40,6 @@ class CommentRepositoryJpaImplTest {
     }
 
     @Test
-    @Transactional(readOnly = true)
-    void shouldReturnCorrectBooksListWithAllInfo() {
-
-        val comments = commentRepositoryJpa.findbyBookId(BOOK_ID);
-        assertThat(comments).isNotNull().hasSize(EXPECTED_NUMBER_OF_COMMENTS)
-                .allMatch(s -> !s.getComment().equals(""));
-    }
-
-    @Test
     @Transactional
     void testSave() {
 
@@ -75,7 +66,9 @@ class CommentRepositoryJpaImplTest {
 
             String newComment = "new comment";
 
-            commentRepositoryJpa.update(comment.getId(), newComment);
+            comment.setComment(newComment);
+
+            commentRepositoryJpa.save(comment);
 
             Optional<Comment> optionalActualComment = commentRepositoryJpa.findById(comment.getId());
 

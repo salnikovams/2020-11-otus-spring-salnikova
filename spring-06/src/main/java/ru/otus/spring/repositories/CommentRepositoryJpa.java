@@ -11,9 +11,5 @@ public interface CommentRepositoryJpa {
 
     List<Comment> findAll();
 
-    List<Comment> findbyBookId(Long bookId);
-
-    void update(Long id, String name);
-
     void deleteById(Long id);
 }

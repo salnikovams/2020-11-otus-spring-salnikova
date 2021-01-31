@@ -11,13 +11,13 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
 @Repository
 public class AuthorRepositoryJpaImpl implements AuthorRepositoryJpa {
 
     @PersistenceContext
     private EntityManager em;
 
+    @Transactional
     @Override
     public Author save(Author author) {
         if (author.getId() == 0) {
@@ -50,19 +50,13 @@ public class AuthorRepositoryJpaImpl implements AuthorRepositoryJpa {
         }
     }
 
-    @Override
-    public void update(Long id, String name) {
-        Query query = em.createQuery("update Author b set b.name = :name where b.id = :id");
-        query.setParameter("name", name);
-        query.setParameter("id", id);
-        query.executeUpdate();
-    }
-
+    @Transactional
     @Override
     public void deleteById(Long id) {
-        Query query = em.createQuery("delete from Author b where b.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Author author = em.find(Author.class, id);
+        if (author != null) {
+            em.remove(author);
+        }
     }
 
 }

@@ -12,7 +12,5 @@ public interface AuthorRepositoryJpa {
     List<Author> findAll();
     Author findByName(String name);
 
-    void update(Long id, String name);
-
     void deleteById(Long id);
 }

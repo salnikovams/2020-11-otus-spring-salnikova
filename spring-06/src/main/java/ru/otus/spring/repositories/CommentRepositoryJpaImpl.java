@@ -12,13 +12,13 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
 @Repository
 public class CommentRepositoryJpaImpl implements CommentRepositoryJpa {
 
     @PersistenceContext
     private EntityManager em;
 
+    @Transactional
     @Override
     public Comment save(Comment comment) {
         if (comment.getId() == 0) {
@@ -34,13 +34,6 @@ public class CommentRepositoryJpaImpl implements CommentRepositoryJpa {
         return Optional.ofNullable(em.find(Comment.class, id));
     }
 
-    @Override
-    public List<Comment> findbyBookId(Long bookId) {
-        TypedQuery<Comment> query = em.createQuery("select b from Comment b where b.book.id=:bookId", Comment.class);
-        query.setParameter("bookId", bookId);
-        return query.getResultList();
-    }
-
 
       @Override
           public List<Comment> findAll() {
@@ -49,19 +42,13 @@ public class CommentRepositoryJpaImpl implements CommentRepositoryJpa {
           }
 
 
-    @Override
-    public void update(Long id, String comment) {
-        Query query = em.createQuery("update Comment b set b.comment = :comment where b.id = :id");
-        query.setParameter("comment", comment);
-        query.setParameter("id", id);
-        query.executeUpdate();
-    }
-
+    @Transactional
     @Override
     public void deleteById(Long id) {
-        Query query = em.createQuery("delete from Comment b where b.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Comment comment = em.find(Comment.class, id);
+        if (comment != null) {
+            em.remove(comment);
+        }
     }
 
 }

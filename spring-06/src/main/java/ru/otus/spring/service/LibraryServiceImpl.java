@@ -1,16 +1,22 @@
 package ru.otus.spring.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Comment;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.dto.CommentDTO;
 import ru.otus.spring.repositories.AuthorRepositoryJpa;
 import ru.otus.spring.repositories.BookRepositoryJpa;
 import ru.otus.spring.repositories.CommentRepositoryJpa;
 import ru.otus.spring.repositories.GenreRepositoryJpa;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,7 +60,13 @@ public class LibraryServiceImpl implements LibraryService {
 
     @Override
     public void updateBookInfo(Long id, String bookName) {
-        bookRepository.update(id, bookName);
+        Optional<Book> optionalBook = bookRepository.findById(id) ;
+        if (optionalBook.isPresent()){
+            Book book = optionalBook.get();
+            book.setName(bookName);
+            bookRepository.save(book);
+        }
+
     }
 
     @Override
@@ -106,8 +118,20 @@ public class LibraryServiceImpl implements LibraryService {
         commentRepository.save(commentEntity);
     }
 
+    @Transactional(readOnly=true)
     @Override
-    public List<Comment> getCommentsByBook(Long bookId){
-        return commentRepository.findbyBookId(bookId);
+    public List<CommentDTO> getCommentsByBook(Long bookId){
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+        List<CommentDTO> commentDTOS = new ArrayList<>();
+        if (optionalBook.isPresent()){
+            Book book = optionalBook.get();
+            List<Comment> comments = book.getComments();
+            for (Comment comment: comments){
+                CommentDTO commentDTO = new CommentDTO(comment.getId(), comment.getComment(), comment.getBook().getId());
+                commentDTOS.add(commentDTO);
+            }
+            return commentDTOS;
+        }
+        return Collections.emptyList();
     }
 }

@@ -7,6 +7,8 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Data
@@ -29,11 +31,22 @@ public class Book {
     @ManyToOne(targetEntity = Genre.class )
     private Genre genre;
 
+    @Fetch(FetchMode.SELECT)
+    @BatchSize(size = 5)
+    @OneToMany(targetEntity = Comment.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "book")
+    private List<Comment> comments;
 
     public Book(long id, String name, Author author, Genre genre) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.genre = genre;
+    }
+
+    public void addComment(Comment comment){
+        if (this.comments== null){
+            this.comments = new ArrayList<Comment>();
+        }
+        this.comments.add(comment);
     }
 }

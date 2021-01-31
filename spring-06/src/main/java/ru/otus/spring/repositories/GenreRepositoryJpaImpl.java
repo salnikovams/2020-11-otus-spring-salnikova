@@ -6,18 +6,17 @@ import ru.otus.spring.domain.Genre;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
 
-@Transactional
 @Repository
 public class GenreRepositoryJpaImpl implements GenreRepositoryJpa {
 
     @PersistenceContext
     private EntityManager em;
 
+    @Transactional
     @Override
     public Genre save(Genre genre) {
         if (genre.getId() == 0) {
@@ -50,11 +49,13 @@ public class GenreRepositoryJpaImpl implements GenreRepositoryJpa {
         }
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
-        Query query = em.createQuery("delete from Genre b where b.id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
+        Genre genre = em.find(Genre.class, id);
+        if (genre != null) {
+            em.remove(genre);
+        }
     }
 
 }

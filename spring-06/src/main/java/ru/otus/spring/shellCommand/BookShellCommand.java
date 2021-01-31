@@ -5,7 +5,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import ru.otus.spring.domain.Book;
-import ru.otus.spring.domain.Comment;
+import ru.otus.spring.dto.CommentDTO;
 import ru.otus.spring.service.LibraryService;
 
 import java.util.List;
@@ -27,12 +27,6 @@ public class BookShellCommand {
         for (Book book : bookList){
             stringBuilder.append(String.format("Book id = %s, name = %s, author = %s, genre = %s",
                     book.getId(), book.getName(), book.getAuthor(), book.getGenre()));
-            /*List<Comment> comments = book.getComments();
-            stringBuilder.append("comments=[");
-            for (Comment comment: comments){
-                stringBuilder.append(String.format("id= %s, comment =\"%s\"", comment.getId(),comment.getComment()));
-            }
-            stringBuilder.append("]");*/
             stringBuilder.append("\n");
         }
         return stringBuilder.toString();
@@ -74,11 +68,11 @@ public class BookShellCommand {
 
     @ShellMethod(value = "All comments", key = "all-comments")
     public String getAllComments(@ShellOption(help = "bookId") Long bookId) {
-        List<Comment> comments = libraryService.getCommentsByBook(bookId);
+        List<CommentDTO> comments = libraryService.getCommentsByBook(bookId);
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("comments=[");
-        for (Comment comment: comments){
+        for (CommentDTO comment: comments){
             stringBuilder.append(String.format("id= %s, comment = \"%s\"",comment.getId(),comment.getComment()));
         }
         stringBuilder.append("]");

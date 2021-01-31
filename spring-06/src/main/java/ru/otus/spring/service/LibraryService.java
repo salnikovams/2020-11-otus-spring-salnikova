@@ -4,6 +4,7 @@ import ru.otus.spring.domain.Author;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Comment;
 import ru.otus.spring.domain.Genre;
+import ru.otus.spring.dto.CommentDTO;
 
 import java.util.List;
 
@@ -20,5 +21,5 @@ public interface LibraryService {
     public Author getAuthorByName(String name);
     public Genre getGenreByName(String name);
     public void addComment(String comment, String bookName);
-    public List<Comment> getCommentsByBook(Long bookId);
+    public List<CommentDTO> getCommentsByBook(Long bookId);
 }
