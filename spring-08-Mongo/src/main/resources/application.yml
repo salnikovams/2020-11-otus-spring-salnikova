@@ -1,0 +1,14 @@
+#spring:
+#  datasource:
+#    url: jdbc:h2:mem:testdb
+#    initialization-mode: always
+
+spring:
+  data:
+    mongodb:
+      database: library
+
+logging:
+  level:
+    ROOT: ERROR
+
