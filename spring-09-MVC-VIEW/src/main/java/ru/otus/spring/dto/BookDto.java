@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.otus.spring.domain.Book;
 
+import java.util.List;
+
 
 @Data
 @NoArgsConstructor
@@ -19,10 +21,19 @@ public class BookDto {
 
     private String genre;
 
+    private List<GenreDTO> allGenres;
+
 
     public BookDto(int id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public BookDto(long id, String name, String author, String genre) {
+        this.id = id;
+        this.name = name;
+        this.author = author;
+        this.genre = genre;
     }
 
     public long getId() {

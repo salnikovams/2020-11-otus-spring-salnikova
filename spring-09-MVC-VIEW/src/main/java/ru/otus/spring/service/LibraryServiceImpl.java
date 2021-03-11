@@ -53,9 +53,21 @@ public class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public Book updateBookInfo(Long id, String bookName) {
+    public Book updateBookInfo(Long id, String bookName, String authorName, String genreName) {
         Book book = getBookById(id);
         book.setName(bookName);
+        Author author = getAuthorByName(authorName);
+        if (author == null){
+            author = new Author(0L, authorName);
+            authorRepository.save(author);
+        }
+        book.setAuthor(author);
+        Genre genre = getGenreByName(genreName);
+        if (genre == null){
+            genre = new Genre(0L, genreName);
+            genreRepository.save(genre);
+        }
+        book.setGenre(genre);
         return bookRepository.save(book);
     }
 
@@ -99,6 +111,11 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public Genre getGenreByName(String name) {
         return genreRepository.findByName(name);
+    }
+
+    @Override
+    public List<Genre> getAllGenres() {
+        return genreRepository.findAll();
     }
 
     @Override

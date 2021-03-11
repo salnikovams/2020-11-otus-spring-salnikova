@@ -38,6 +38,18 @@
     </div>
 
     <div class="row">
+        <label for="author-input">Author:</label>
+        <input id="author-input" name="author" type="text" th:value="*{author}" value="Book Author"/>
+    </div>
+
+    <div class="row">
+        <label for="genre">Genre:</label>
+        <select id="genre" name="genre"/>
+            <option th:each="item: ${book.allGenres}" th:value="${item.name}" th:text="${item.name}" th:selected="${item.name}==*{genre}"></option>
+        </select>
+    </div>
+
+    <div class="row">
         <button type="submit">Save</button>
     </div>
 </form>

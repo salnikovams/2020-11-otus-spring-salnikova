@@ -7,8 +7,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.otus.spring.domain.Book;
 import ru.otus.spring.domain.Comment;
+import ru.otus.spring.domain.Genre;
 import ru.otus.spring.dto.BookDto;
 import ru.otus.spring.dto.CommentDTO;
+import ru.otus.spring.dto.GenreDTO;
 import ru.otus.spring.exception.NotFoundException;
 import ru.otus.spring.service.LibraryService;
 
@@ -38,16 +40,27 @@ public class LibraryController {
     @GetMapping("/edit")
     public String showEditBook(@RequestParam("id") long id, Model model) {
         Book book = libraryService.getBookById(id);
-        model.addAttribute("book", BookDto.toDto(book));
+        BookDto bookDTO = BookDto.toDto(book);
+
+
+        List<Genre> genres = libraryService.getAllGenres();
+        List<GenreDTO> genreNames = new ArrayList<>();
+        for (Genre genre: genres){
+            genreNames.add(GenreDTO.toDto(genre));
+        }
+        bookDTO.setAllGenres(genreNames);
+        model.addAttribute("book", bookDTO);
         return "edit";
     }
 
     @PostMapping("/edit")
     public String editBook(
             @RequestParam("id") Long id,
-            @RequestParam("name") String name
+            @RequestParam("name") String name,
+            @RequestParam(name = "author") String author,
+            @RequestParam(name = "genre") String genre
     ) {
-        libraryService.updateBookInfo(id, name);
+        libraryService.updateBookInfo(id, name, author, genre);
         return "redirect:/";
     }
 
