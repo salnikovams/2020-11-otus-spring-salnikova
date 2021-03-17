@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Book Comments</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .persons, .persons td {
+            border: 1px solid lightgray;
+            padding: 5px;
+        }
+    </style>
+</head>
+<script src="/webjars/jquery/3.3.1/jquery.min.js"></script>
+<body>
+<h1>Comments:</h1>
+
+<table class="comments">
+    <thead>
+    <tr>
+        <th>Book</th>
+        <th>Comment</th>
+    </tr>
+    </thead>
+    <input id = "bokId" type="hidden" name="id" th:value="${bookId}">
+    <tbody>
+
+    </tbody>
+</table>
+
+<script>
+    $(function () {
+        var bookId = $(bokId).serialize();
+        $.get('/comments', bookId).done(function(comments) {
+            comments.forEach(function (comment) {
+                $('tbody').append(`
+                    <tr>
+                        <td>${comment.bookName}</td>
+                        <td>${comment.comment}</td>
+                    </tr>
+                `)
+            });
+        })
+    });
+</script>
+</body>
+</html>
