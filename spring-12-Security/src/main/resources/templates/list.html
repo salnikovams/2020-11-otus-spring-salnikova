@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Library</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        .persons, .persons td {
+            border: 1px solid lightgray;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<div id="table">
+<h1>Books:</h1>
+
+<table cellpadding = "4"  width="100%">
+    <thead>
+    <tr>
+        <th align = "left">ID</th>		
+        <th align = "left">Name</th>		
+        <th align = "left">Author</th>		
+        <th align = "left">Genre</th>
+    </tr>
+    </thead>
+    <tbody>
+    <div th:each="book : ${books}">
+        <tr>
+        <td th:text="${book.id}">1</td>		
+        <td th:text="${book.name}">Book Name</td>		
+        <td th:text="${book.author}">Book Author</td>		
+        <td th:text="${book.genre}">Book Genre</td>		
+        <td>
+            <a th:href="@{/books/edit(id=${book.id})}" href="edit.html">Edit</a>
+        </td>
+
+        <td>
+            <a th:href="@{/books/comment(id=${book.id})}" href="comment.html">Comments</a>
+        </td>
+        <td>
+            <a th:href="@{/books/addComment(id=${book.id})}" href="addComment.html">Add new comment</a>
+        </td>
+        <td>
+            <form id="delete-form" action="/books/delete" method="delete">
+                <input type="hidden" name="id" th:value="${book.id}">
+                <input type="submit" value="Delete">
+            </form>
+        </td>
+        </tr>
+    </div>
+
+    </tbody>
+</table>
+</div>
+
+<div id="addform">
+<form id="add-form"  action="/books/add" method="post">
+    <h1>Add new Book:</h1>
+<table>
+<tr>
+    <td>
+        <label for="name-input">Name:</label>
+	</td>	
+	<td>
+        <input id="name-input" name="name" type="text" required/>
+    </td>
+</tr>
+<tr>
+    <td>
+        <label for="author-input">Author:</label>
+	</td>	
+	<td>
+        <input id="author-input" name="author" type="text" required/>
+    </td>
+</tr>
+<tr>
+    <td>
+        <label for="genre-input">Genre:</label>
+	</td>	
+	<td>
+        <input id="genre-input" name="genre" type="text" required/>
+    </td>
+</tr>
+<tr>
+    <td align="center">
+        <button type="submit">Save</button>
+   </td>
+</tr>
+</table>	
+</form>
+</div>
+</body>
+</html>
