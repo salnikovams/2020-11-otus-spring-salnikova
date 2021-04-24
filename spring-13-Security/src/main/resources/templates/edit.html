@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Edit book</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input:read-only {
+            background: lightgray;
+        }
+
+        .row {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<form id="edit-form" th:action="@{/books/edit(id=${book.id})}" th:method="post" action="edit.html" th:object="${book}">
+    <h1>Book Info:</h1>
+
+    <div class="row">
+        <label for="id-input">ID:</label>
+        <input id="id-input" type="text" readonly="readonly" th:value="*{id}" value="1"/>
+    </div>
+
+    <div class="row">
+        <label for="name-input">Name:</label>
+        <input id="name-input" name="name" type="text" th:value="*{name}" value="Book Name"/>
+    </div>
+
+    <div class="row">
+        <label for="author-input">Author:</label>
+        <input id="author-input" name="author" type="text" th:value="*{author}" value="Book Author"/>
+    </div>
+
+    <div class="row">
+        <label for="genre">Genre:</label>
+        <select id="genre" name="genre"/>
+            <option th:each="item: ${book.allGenres}" th:value="${item.name}" th:text="${item.name}" th:selected="${item.name}==*{genre}"></option>
+        </select>
+    </div>
+
+    <div class="row">
+        <button type="submit">Save</button>
+    </div>
+</form>
+
+</body>
+</html>
