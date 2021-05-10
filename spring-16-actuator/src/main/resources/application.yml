@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    initialization-mode: always
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+logging:
+  level:
+    ROOT: DEBUG
+  file:
+    name: 'logs/library.log'
+
+org:
+  hibernate:
+    SQL: DEBUG
+    type: TRACE
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "metrics,health,logfile"
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+  health:
+    defaults:
+      enabled: true
