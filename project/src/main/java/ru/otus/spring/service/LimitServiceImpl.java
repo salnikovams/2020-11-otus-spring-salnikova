@@ -19,6 +19,7 @@ import ru.otus.spring.repositories.LimitConditionRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -100,17 +101,17 @@ public class LimitServiceImpl implements LimitService {
         List<Limit> selectedLimits = new ArrayList<>();
         for (Limit limit: limitsByOperDate){
             List<LimitCondition> conditionList = limit.getLimitConditionList();
-
+            Map<Integer, Long> objConditionIndexCurrent = new HashMap<>(objConditionIndex);
             Iterator<LimitCondition> iterator =  conditionList.iterator();
             while (iterator.hasNext()){
                 LimitCondition condition = iterator.next();
-                Long currentValue = objConditionIndex.get(condition.getConditionKind());
+                Long currentValue = objConditionIndexCurrent.get(condition.getConditionKind());
                 if (currentValue != null && currentValue.equals(condition.getConditionValue())){
-                    objConditionIndex.remove(condition.getConditionKind());
+                    objConditionIndexCurrent.remove(condition.getConditionKind());
                     iterator.remove();
                 }
             }
-            if (conditionList.isEmpty() && objConditionIndex.isEmpty()){
+            if (conditionList.isEmpty() && objConditionIndexCurrent.isEmpty()){
                 selectedLimits.add(limit);
             }
         }
@@ -118,9 +119,15 @@ public class LimitServiceImpl implements LimitService {
         for (Limit limit: selectedLimits){//до первого лимита, который не прошли
             BigDecimal breakValue = limit.getBreakConditionValue();
             String limitName = limit.getName();
+            System.out.println("limitName="+limitName);
             Currency requestCurrency = getCurrencyByIdOrISOCode(null, checkRequest.getCurrencyISOCode());
-            BigDecimal courseValue = getCourse(requestCurrency, limit.getCurrency(), operationDate);
-            BigDecimal amount = checkRequest.getAmount().multiply(courseValue);
+            System.out.println("requestCurrency="+requestCurrency);
+            BigDecimal courseValue = getCourse(requestCurrency, limit.getCurrency(), operationDate).setScale(6, RoundingMode.HALF_UP);
+            System.out.println("courseValue="+courseValue);
+            BigDecimal amount = checkRequest.getAmount().multiply(courseValue).setScale(6, RoundingMode.HALF_UP);
+            System.out.println("amount="+amount);
+            System.out.println("breakValue="+breakValue);
+            System.out.println("compareTo="+amount.compareTo(breakValue));
             if (amount.compareTo(breakValue)>0){
                 return new NotificationDTO(NotificationCode.LIMIT_CHECK_EXCESS.getCode(),
                         messageSource.getMessage(NotificationCode.LIMIT_CHECK_EXCESS.getMessage(), new String[]{limitName}, locale));
