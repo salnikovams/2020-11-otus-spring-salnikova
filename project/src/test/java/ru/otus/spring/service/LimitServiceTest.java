@@ -1,6 +1,5 @@
 package ru.otus.spring.service;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

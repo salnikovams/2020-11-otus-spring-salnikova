@@ -19,3 +19,6 @@ spring:
 logging:
   level:
     ROOT: DEBUG
+
+application:
+  locale: ru

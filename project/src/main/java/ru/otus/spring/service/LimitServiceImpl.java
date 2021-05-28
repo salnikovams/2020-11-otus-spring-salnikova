@@ -118,9 +118,10 @@ public class LimitServiceImpl implements LimitService {
         for (Limit limit: selectedLimits){//до первого лимита, который не прошли
             BigDecimal breakValue = limit.getBreakConditionValue();
             String limitName = limit.getName();
-            if (checkRequest.getAmount().compareTo(breakValue)>0){
-               // return new NotificationDTO(NotificationCode.LIMIT_CHECK_EXCESS.getCode(), String.format("Limit %s is Exceeded", limit.getName()));
-                //messageSource.getMessage("number.of.correct.answers",  new Integer[]{studentCorrectAnswerQty}, locale)
+            Currency requestCurrency = getCurrencyByIdOrISOCode(null, checkRequest.getCurrencyISOCode());
+            BigDecimal courseValue = getCourse(requestCurrency, limit.getCurrency(), operationDate);
+            BigDecimal amount = checkRequest.getAmount().multiply(courseValue);
+            if (amount.compareTo(breakValue)>0){
                 return new NotificationDTO(NotificationCode.LIMIT_CHECK_EXCESS.getCode(),
                         messageSource.getMessage(NotificationCode.LIMIT_CHECK_EXCESS.getMessage(), new String[]{limitName}, locale));
             }
@@ -158,7 +159,7 @@ public class LimitServiceImpl implements LimitService {
     private Limit findByIdAndCheckExists(Long limitId) throws InputParameterException {
         Optional<Limit> limitOptional = limitRepository.findById(limitId);
         if (!limitOptional.isPresent()) {
-            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_NOT_FOUND.getMessage(), new Long[]{limitId}, locale)/*String.format("Limit is not found by id %s", limitId)*/);
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_NOT_FOUND.getMessage(), new Long[]{limitId}, locale));
         }
         return limitOptional.get();
     }
@@ -177,16 +178,16 @@ public class LimitServiceImpl implements LimitService {
 
     public void checkMandatoryParameters(LimitRequestDTO limitDTO)throws InputParameterException{
         if (limitDTO.getName() == null){
-            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_NAME_IS_MANDATORY.getMessage(), null, locale/*"Name is a mandatory parameter"*/));
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_NAME_IS_MANDATORY.getMessage(), null, locale));
         }
         if (limitDTO.getBreakConditionValue() == null){
-            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_BREAKCONDITIONVALUE_IS_MANDATORY.getMessage(), null, locale)/*"BreakConditionValue is a mandatory parameter"*/);
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_BREAKCONDITIONVALUE_IS_MANDATORY.getMessage(), null, locale));
         }
         if (limitDTO.getLimitConditionList() == null){
-            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_CONDITIONLIST_IS_MANDATORY.getMessage(), null, locale))/*"ConditionList is a mandatory parameter"*/;
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_CONDITIONLIST_IS_MANDATORY.getMessage(), null, locale));
         }
         if (limitDTO.getCurrencyId() == null && limitDTO.getCurrencyISOCode() == null){
-            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_CONDITIONLIST_IS_MANDATORY.getMessage(), null, locale)/*"You need to set currency ID or ISOCode"*/);
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_CONDITIONLIST_IS_MANDATORY.getMessage(), null, locale));
         }
     }
 
@@ -195,8 +196,7 @@ public class LimitServiceImpl implements LimitService {
     private void checkLimitExistsByName(String name) throws InputParameterException {
         if (limitRepository.existsByName(name)) {
             throw new InputParameterException(
-                    messageSource.getMessage(NotificationCode.LIMIT_WITH_NAME_ALREADYEXISTS.getMessage(), new String[]{name}, locale)
-                    /*String.format("Limit with name %s already exists", name)*/);
+                    messageSource.getMessage(NotificationCode.LIMIT_WITH_NAME_ALREADYEXISTS.getMessage(), new String[]{name}, locale));
         }
     }
 
@@ -204,7 +204,6 @@ public class LimitServiceImpl implements LimitService {
         List<Limit> existingLimits =limitRepository.findByIdNotAndName(limitId, name);
         if (!existingLimits.isEmpty()) {
             throw new InputParameterException(
-                   /* String.format("Limit with name %s already exists", name)*/
                     messageSource.getMessage(NotificationCode.LIMIT_WITH_NAME_ALREADYEXISTS.getMessage(), new String[]{name}, locale));
         }
     }
@@ -224,7 +223,10 @@ public class LimitServiceImpl implements LimitService {
                 return optionalCurrency.get();
         } else throw new InputParameterException(
                 messageSource.getMessage(NotificationCode.LIMIT_CURRENCY_NOTFOUND_BYPARAM.getMessage(),
-                        new String[]{(currencyID != null)?currencyID.toString():"null", isoCode}, locale)
-                /*String.format("Currency not found by id=%s or code=%s", currencyID, isoCode)*/);
+                        new String[]{(currencyID != null)?currencyID.toString():"null", isoCode}, locale));
+    }
+
+    BigDecimal getCourse(Currency qoutedCurrency, Currency baseCurrency, Date operationDate){
+        return BigDecimal.ONE;
     }
 }
