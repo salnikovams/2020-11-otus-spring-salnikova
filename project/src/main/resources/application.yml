@@ -18,3 +18,7 @@ org:
   hibernate:
     SQL: DEBUG
     type: TRACE
+
+application:
+  locale: ru
+

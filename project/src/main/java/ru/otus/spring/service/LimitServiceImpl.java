@@ -1,12 +1,15 @@
 package ru.otus.spring.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.otus.spring.domain.Currency;
 import ru.otus.spring.domain.Limit;
 import ru.otus.spring.domain.LimitCondition;
 import ru.otus.spring.dto.*;
+import ru.otus.spring.enums.NotificationCode;
 import ru.otus.spring.exception.InputParameterException;
 import ru.otus.spring.exception.NotFoundException;
 import ru.otus.spring.repositories.CurrencyRepository;
@@ -28,16 +31,24 @@ public class LimitServiceImpl implements LimitService {
 
     private final LimitConditionRepository limitConditionRepository;
 
+    private final MessageSource messageSource;
+
+    private final Locale locale;
+
     @PersistenceContext
     private EntityManager entityManager;
 
     @Autowired
     public LimitServiceImpl(LimitRepository limitRepository, CurrencyRepository currencyRepository,
-                            LimitConditionRepository limitConditionRepository, EntityManager entityManager) {
+                            LimitConditionRepository limitConditionRepository, EntityManager entityManager,
+                            MessageSource messageSource,
+                            @Value( "${application.locale}")Locale locale) {
         this.limitRepository = limitRepository;
         this.currencyRepository = currencyRepository;
         this.limitConditionRepository = limitConditionRepository;
         this.entityManager = entityManager;
+        this.messageSource = messageSource;
+        this.locale = locale;
     }
 
     @Override
@@ -106,12 +117,16 @@ public class LimitServiceImpl implements LimitService {
 
         for (Limit limit: selectedLimits){//до первого лимита, который не прошли
             BigDecimal breakValue = limit.getBreakConditionValue();
+            String limitName = limit.getName();
             if (checkRequest.getAmount().compareTo(breakValue)>0){
-                return new NotificationDTO(1L, String.format("Limit %s is Exceeded", limit.getName()));
+               // return new NotificationDTO(NotificationCode.LIMIT_CHECK_EXCESS.getCode(), String.format("Limit %s is Exceeded", limit.getName()));
+                //messageSource.getMessage("number.of.correct.answers",  new Integer[]{studentCorrectAnswerQty}, locale)
+                return new NotificationDTO(NotificationCode.LIMIT_CHECK_EXCESS.getCode(),
+                        messageSource.getMessage(NotificationCode.LIMIT_CHECK_EXCESS.getMessage(), new String[]{limitName}, locale));
             }
         }
 
-        return new NotificationDTO(0L, "OK");
+        return new NotificationDTO(NotificationCode.LIMIT_CHECK_SUCCESS.getCode(), "OK");
 
     }
 
@@ -143,7 +158,7 @@ public class LimitServiceImpl implements LimitService {
     private Limit findByIdAndCheckExists(Long limitId) throws InputParameterException {
         Optional<Limit> limitOptional = limitRepository.findById(limitId);
         if (!limitOptional.isPresent()) {
-            throw new InputParameterException(String.format("Limit is not found by id %s", limitId));
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_NOT_FOUND.getMessage(), new Long[]{limitId}, locale)/*String.format("Limit is not found by id %s", limitId)*/);
         }
         return limitOptional.get();
     }
@@ -162,16 +177,16 @@ public class LimitServiceImpl implements LimitService {
 
     public void checkMandatoryParameters(LimitRequestDTO limitDTO)throws InputParameterException{
         if (limitDTO.getName() == null){
-            throw new InputParameterException("Name is a mandatory parameter");
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_NAME_IS_MANDATORY.getMessage(), null, locale/*"Name is a mandatory parameter"*/));
         }
         if (limitDTO.getBreakConditionValue() == null){
-            throw new InputParameterException("BreakConditionValue is a mandatory parameter");
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_BREAKCONDITIONVALUE_IS_MANDATORY.getMessage(), null, locale)/*"BreakConditionValue is a mandatory parameter"*/);
         }
         if (limitDTO.getLimitConditionList() == null){
-            throw new InputParameterException("ConditionList is a mandatory parameter");
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_CONDITIONLIST_IS_MANDATORY.getMessage(), null, locale))/*"ConditionList is a mandatory parameter"*/;
         }
         if (limitDTO.getCurrencyId() == null && limitDTO.getCurrencyISOCode() == null){
-            throw new InputParameterException("You need to set currency ID or ISOCode");
+            throw new InputParameterException(messageSource.getMessage(NotificationCode.LIMIT_CONDITIONLIST_IS_MANDATORY.getMessage(), null, locale)/*"You need to set currency ID or ISOCode"*/);
         }
     }
 
@@ -180,7 +195,8 @@ public class LimitServiceImpl implements LimitService {
     private void checkLimitExistsByName(String name) throws InputParameterException {
         if (limitRepository.existsByName(name)) {
             throw new InputParameterException(
-                    String.format("Limit with name %s already exists", name));
+                    messageSource.getMessage(NotificationCode.LIMIT_WITH_NAME_ALREADYEXISTS.getMessage(), new String[]{name}, locale)
+                    /*String.format("Limit with name %s already exists", name)*/);
         }
     }
 
@@ -188,7 +204,8 @@ public class LimitServiceImpl implements LimitService {
         List<Limit> existingLimits =limitRepository.findByIdNotAndName(limitId, name);
         if (!existingLimits.isEmpty()) {
             throw new InputParameterException(
-                    String.format("Limit with name %s already exists", name));
+                   /* String.format("Limit with name %s already exists", name)*/
+                    messageSource.getMessage(NotificationCode.LIMIT_WITH_NAME_ALREADYEXISTS.getMessage(), new String[]{name}, locale));
         }
     }
 
@@ -205,15 +222,9 @@ public class LimitServiceImpl implements LimitService {
         }
         if (optionalCurrency.isPresent()) {
                 return optionalCurrency.get();
-        } else throw new InputParameterException(String.format("Currency not found by id=%s or code=%s", currencyID, isoCode));
+        } else throw new InputParameterException(
+                messageSource.getMessage(NotificationCode.LIMIT_CURRENCY_NOTFOUND_BYPARAM.getMessage(),
+                        new String[]{(currencyID != null)?currencyID.toString():"null", isoCode}, locale)
+                /*String.format("Currency not found by id=%s or code=%s", currencyID, isoCode)*/);
     }
-
-    private Currency getCurrencyByISOCode(String isoCode) throws InputParameterException {
-        Optional<Currency> optionalCurrency = currencyRepository.findByIsoCode(isoCode);
-        if (optionalCurrency.isPresent()){
-            return optionalCurrency.get();
-        } else throw new InputParameterException(String.format("Currency not found by name %s", isoCode));
-    }
-
-
 }
